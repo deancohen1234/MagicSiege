@@ -68,10 +68,17 @@ void UWallGatewayComponent::SpawnGateway()
 
 	if (world)
 	{
+		//Get hit location and normal to span actor blueprint 
 		const FRotator SpawnRotation = HitResult.ImpactNormal.ToOrientationRotator();
 		const FVector SpawnLocation = HitResult.ImpactPoint;
 		FActorSpawnParameters Parameters;
 		world->SpawnActor<AGateway>(GatewayClass ,SpawnLocation, SpawnRotation, Parameters);
+
+		//change the hit wall's actor's collison to make it pass through able
+		if (UPrimitiveComponent* PrimitiveComponent = ActorHit->FindComponentByClass<UPrimitiveComponent>())
+		{
+			PrimitiveComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+		}
 	}
 	
 }
