@@ -4,6 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Components/InputComponent.h"
+
+#include "Gateway.h"
+
 #include "GameFramework/Actor.h"
 #include "WallGatewayComponent.generated.h"
 
@@ -23,8 +27,17 @@ protected:
 
 public:	
 	// Called every frame
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AGateway> GatewayClass;
+
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-		
+private:
+
+	void SetupInputComponent();
+	void SpawnGateway();
+
+	UInputComponent* InputComponent = nullptr;
+	
 	
 };

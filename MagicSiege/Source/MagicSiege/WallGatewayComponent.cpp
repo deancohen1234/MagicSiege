@@ -23,6 +23,8 @@ void UWallGatewayComponent::BeginPlay()
 	AActor* actor = GetOwner();
 
 	UE_LOG(LogTemp, Warning, TEXT("Wall Gateway Owner is %s"), *actor->GetName());
+
+	SetupInputComponent();
 	
 }
 
@@ -33,5 +35,34 @@ void UWallGatewayComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+}
+
+void UWallGatewayComponent::SetupInputComponent()
+{
+	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
+	if (InputComponent)
+	{
+		InputComponent->BindAction("OpenGateway", IE_Pressed, this, &UWallGatewayComponent::SpawnGateway);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s missing input component"), *GetOwner()->GetName())
+	}
+}
+
+void UWallGatewayComponent::SpawnGateway() 
+{
+	UE_LOG(LogTemp, Error, TEXT("Spawning Gateway"));
+
+	UWorld* world = GetWorld();
+
+	if (world) 
+	{
+		const FRotator SpawnRotation = FRotator(0., 0., 0.);
+		const FVector SpawnLocation = GetOwner()->GetActorLocation();
+		FActorSpawnParameters Parameters;
+		world->SpawnActor<AGateway>(GatewayClass ,SpawnLocation, SpawnRotation, Parameters);
+	}
+	
 }
 
