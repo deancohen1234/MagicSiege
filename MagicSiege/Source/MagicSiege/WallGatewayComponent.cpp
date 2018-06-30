@@ -2,6 +2,8 @@
 
 #include "WallGatewayComponent.h"
 
+#define OUT
+
 
 // Sets default values for this component's properties
 UWallGatewayComponent::UWallGatewayComponent()
@@ -52,17 +54,62 @@ void UWallGatewayComponent::SetupInputComponent()
 
 void UWallGatewayComponent::SpawnGateway() 
 {
-	UE_LOG(LogTemp, Error, TEXT("Spawning Gateway"));
+	auto HitResult = GetFirstPhysicsBodyInReach();
+	auto ComponentToGrab = HitResult.GetComponent(); // gets the mesh in our case
+	auto ActorHit = HitResult.GetActor();
+
+	if (!ActorHit) 
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Actor Hit is null"));
+		return;
+	}
 
 	UWorld* world = GetWorld();
 
-	if (world) 
+	if (world)
 	{
-		const FRotator SpawnRotation = FRotator(0., 0., 0.);
-		const FVector SpawnLocation = GetOwner()->GetActorLocation();
+		const FRotator SpawnRotation = HitResult.ImpactNormal.ToOrientationRotator();
+		const FVector SpawnLocation = HitResult.ImpactPoint;
 		FActorSpawnParameters Parameters;
 		world->SpawnActor<AGateway>(GatewayClass ,SpawnLocation, SpawnRotation, Parameters);
 	}
 	
+}
+
+const FHitResult UWallGatewayComponent::GetFirstPhysicsBodyInReach()
+{
+	/// Line-trace (AKA ray-cast) out to reach distance
+	FHitResult HitResult;
+	FCollisionQueryParams TraceParameters(FName(TEXT("")), false, GetOwner());
+	GetWorld()->LineTraceSingleByObjectType(
+		OUT HitResult,
+		GetCastLineStart(),
+		GetCastLineEnd(),
+		FCollisionObjectQueryParams(ECollisionChannel::ECC_WorldStatic),
+		TraceParameters
+	);
+	return HitResult;
+}
+
+FVector UWallGatewayComponent::GetCastLineStart()
+{
+	FVector PlayerViewPointLocation;
+	FRotator PlayerViewPointRotation;
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
+		OUT PlayerViewPointLocation,
+		OUT PlayerViewPointRotation
+	);
+	return PlayerViewPointLocation;
+}
+
+FVector UWallGatewayComponent::GetCastLineEnd()
+{
+	FVector PlayerViewPointLocation;
+	FRotator PlayerViewPointRotation;
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
+		OUT PlayerViewPointLocation,
+		OUT PlayerViewPointRotation
+	);
+	return PlayerViewPointLocation + (PlayerViewPointRotation.Vector() * CastMaxDistance);
 }
 

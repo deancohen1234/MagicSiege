@@ -7,6 +7,7 @@
 #include "Components/InputComponent.h"
 
 #include "Gateway.h"
+#include "CollisionQueryParams.h"
 
 #include "GameFramework/Actor.h"
 #include "WallGatewayComponent.generated.h"
@@ -30,14 +31,19 @@ public:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AGateway> GatewayClass;
 
+	float CastMaxDistance = 1000.f;
+
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
 
 	void SetupInputComponent();
 	void SpawnGateway();
+	const FHitResult GetFirstPhysicsBodyInReach();
+
+	FVector GetCastLineStart();
+	FVector GetCastLineEnd();
 
 	UInputComponent* InputComponent = nullptr;
-	
 	
 };
