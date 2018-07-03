@@ -71,7 +71,7 @@ void UWallGatewayComponent::SpawnGateway()
 		//Get hit location and normal to span actor blueprint 
 		const FRotator SpawnRotation = HitResult.ImpactNormal.ToOrientationRotator();
 		//const FVector SpawnLocation = HitResult.ImpactPoint;
-		const FVector SpawnLocation = FVector(HitResult.ImpactPoint.X, HitResult.ImpactPoint.Y, ActorHit->GetActorLocation().Z);
+		const FVector SpawnLocation = FVector(ActorHit->GetActorLocation().X, HitResult.ImpactPoint.Y, ActorHit->GetActorLocation().Z);
 
 		FActorSpawnParameters Parameters;
 		AActor* spawnedGateway = world->SpawnActor<AGateway>(GatewayClass ,SpawnLocation, SpawnRotation, Parameters);
